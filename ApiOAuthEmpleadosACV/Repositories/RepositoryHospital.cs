@@ -23,5 +23,9 @@ namespace ApiOAuthEmpleadosACV.Repositories
             Empleado empleado = await context.Empleados.Where(x => x.IdEmpleado == idempleado).FirstOrDefaultAsync();
             return empleado;
         }
+        public async Task<Empleado> LogInEmpleado(string apellido, int idEmpleado) 
+        {
+            return await this.context.Empleados.Where(x => x.Apellido == apellido && x.IdEmpleado == idEmpleado).FirstOrDefaultAsync();
+        }
     }
 }
