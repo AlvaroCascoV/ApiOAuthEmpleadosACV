@@ -19,7 +19,7 @@ builder.Services.AddAuthentication(helper.GetAuthenticationSchema())
 string connectionStringLocal = builder.Configuration.GetConnectionString("SQLHospital");
 string connectionStringAzure = builder.Configuration.GetConnectionString("AZURETAJAMAR");
 builder.Services.AddTransient<RepositoryHospital>();
-builder.Services.AddDbContext<HospitalContext>(options => options.UseSqlServer(connectionStringLocal));
+builder.Services.AddDbContext<HospitalContext>(options => options.UseSqlServer(connectionStringAzure));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

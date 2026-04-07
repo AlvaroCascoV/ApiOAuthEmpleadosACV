@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ApiOAuthEmpleadosACV/ApiOAuthEmpleadosACV.csproj" />
+  <Project Path="ClienteApiOAuthEmpleados/ClienteApiOAuthEmpleados.csproj" />
 </Solution>
