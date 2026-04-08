@@ -31,12 +31,13 @@ namespace MvcOAuthApiEmpleados.Controllers
             else
             {
                 ViewData["MENSAJE"] = "Ya tienes tu Token!!";
-                HttpContext.Session.SetString("TOKEN", token);
+                //HttpContext.Session.SetString("TOKEN", token);
                 ClaimsIdentity identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
                 //ALMACENAMOS EL NOMBRE DEL USUARIO PARA EL DIBUJO
                 identity.AddClaim(new Claim(ClaimTypes.Name, model.UserName));
                 //ALMACENAMOS EL PASSWORD DEL USUARIO COMO IDENTIFIER
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, model.Password));
+                identity.AddClaim(new Claim("TOKEN", token));
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);
                 //DAMOS DE ALTA AL USUARIO DURANTE 20 MINUTOS (como en el API)
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
