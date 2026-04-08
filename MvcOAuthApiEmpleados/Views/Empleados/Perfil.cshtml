@@ -1,0 +1,11 @@
+﻿@model Empleado
+
+<div class="card" style="width:20rem;">
+    <div class="card-body">
+        <h5 class="card-title">Perfil de @Model.Apellido</h5>
+        <p class="card-text">Oficio: @Model.Oficio</p>
+        <p class="card-text">Salario: @Model.Salario</p>
+        <p class="card-text">Departamento: @Model.IdDepartamento</p>
+        <a asp-controller="Empleados" asp-action="Index" class="btn btn-primary">Volver</a>
+    </div>
+</div>
