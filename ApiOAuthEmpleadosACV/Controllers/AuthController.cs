@@ -4,7 +4,9 @@ using ApiOAuthEmpleadosACV.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography.Pkcs;
 
 namespace ApiOAuthEmpleadosACV.Controllers
@@ -35,6 +37,15 @@ namespace ApiOAuthEmpleadosACV.Controllers
                 //DEBEMOS CREAR UNAS CREDENCIALES CON NUESTRO
                 //TOKEN
                 SigningCredentials credentials = new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
+
+                //añadido posteriormente: añadimos mas info al token
+                string jsonEmpleado = JsonConvert.SerializeObject(empleado);
+                //CREAMOS UN ARRAY DE CLAIMS PARA EL TOKEN
+                Claim[] informacion = new[]
+                {
+                    new Claim("UserData", jsonEmpleado)
+                };
+
                 //EL TOKEN SE GENERA CON UNA CLASE Y DEBEMOS
                 //ALMACENAR LOS DATOS DE ISSUER, CREDENTIALS...
                 JwtSecurityToken token = new JwtSecurityToken(
@@ -42,7 +53,9 @@ namespace ApiOAuthEmpleadosACV.Controllers
                     audience: this.helper.Audience,
                     signingCredentials: credentials,
                     expires: DateTime.UtcNow.AddMinutes(20),
-                    notBefore: DateTime.UtcNow
+                    notBefore: DateTime.UtcNow,
+                    //añadimos los claims
+                    claims: informacion
                     );
                 //POR ULTIMO, DEVOLVEMOS LA RESPUESTA AFIRMATIVA
                 //CON EL TOKEN

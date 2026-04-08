@@ -27,5 +27,10 @@ namespace ApiOAuthEmpleadosACV.Repositories
         {
             return await this.context.Empleados.Where(x => x.Apellido == apellido && x.IdEmpleado == idEmpleado).FirstOrDefaultAsync();
         }
+        //añadido despues de claims en token
+        public async Task<List<Empleado>> GetCompisAsync(int idDepartamento)
+        {
+            return await this.context.Empleados.Where(x => x.IdDepartamento == idDepartamento).ToListAsync();
+        }
     }
 }
