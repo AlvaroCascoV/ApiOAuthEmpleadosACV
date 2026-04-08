@@ -17,10 +17,12 @@ namespace ApiOAuthEmpleadosACV.Controllers
     {
         private RepositoryHospital repo;
         private HelperActionOAuthService helper;
-        public AuthController(RepositoryHospital repo, HelperActionOAuthService helper)
+        private HelperCifrado helperCrypt;
+        public AuthController(RepositoryHospital repo, HelperActionOAuthService helper, HelperCifrado helperCrypt)
         {
             this.repo = repo;
             this.helper = helper;
+            this.helperCrypt = helperCrypt;
         }
 
         [HttpPost]
@@ -39,11 +41,14 @@ namespace ApiOAuthEmpleadosACV.Controllers
                 SigningCredentials credentials = new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
 
                 //añadido posteriormente: añadimos mas info al token
-                string jsonEmpleado = JsonConvert.SerializeObject(empleado);
+                //string jsonEmpleado = JsonConvert.SerializeObject(empleado);
+                //encriptamos los datos con nuestro nuevo helper
+                string jsonEncryptEmpleado = this.helperCrypt.EncryptObject(empleado);
+
                 //CREAMOS UN ARRAY DE CLAIMS PARA EL TOKEN
                 Claim[] informacion = new[]
                 {
-                    new Claim("UserData", jsonEmpleado)
+                    new Claim("UserData", jsonEncryptEmpleado)
                 };
 
                 //EL TOKEN SE GENERA CON UNA CLASE Y DEBEMOS

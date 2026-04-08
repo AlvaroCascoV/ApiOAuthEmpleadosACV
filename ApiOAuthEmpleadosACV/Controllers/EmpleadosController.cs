@@ -1,4 +1,5 @@
-﻿using ApiOAuthEmpleadosACV.Models;
+﻿using ApiOAuthEmpleadosACV.Helpers;
+using ApiOAuthEmpleadosACV.Models;
 using ApiOAuthEmpleadosACV.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +14,11 @@ namespace ApiOAuthEmpleadosACV.Controllers
     public class EmpleadosController : ControllerBase
     {
         private RepositoryHospital repo;
-        public EmpleadosController(RepositoryHospital repo)
+        private HelperCifrado helperCrypt;
+        public EmpleadosController(RepositoryHospital repo, HelperCifrado helperCrypt)
         {
             this.repo = repo;
+            this.helperCrypt = helperCrypt;
         }
         [HttpGet]
         public async Task<ActionResult<List<Empleado>>> GetEmpleadosAsync()
@@ -38,10 +41,12 @@ namespace ApiOAuthEmpleadosACV.Controllers
         public async Task<ActionResult<Empleado>> Perfil()
         {
             Claim claim = HttpContext.User.FindFirst(z => z.Type == "UserData");
+            //desencriptamos el empleado del claim para recuperar su departamento
             string jsonEmpleado = claim.Value;
-            Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
-            //recuperamos el empleado desde el repo por si se ha actualizado entre el token y la llamada al perfil
-            return await this.repo.FindEmpleadoAsync(empleado.IdEmpleado);
+            //Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
+            Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
+
+            return await this.repo.FindEmpleadoAsync(empleadoDecrypt.IdEmpleado);
         }
         [Authorize]
         [HttpGet]
@@ -49,9 +54,12 @@ namespace ApiOAuthEmpleadosACV.Controllers
         public async Task<ActionResult<List<Empleado>>> Compis()
         {
             Claim claim = HttpContext.User.FindFirst(z => z.Type == "UserData");
+            //desencriptamos el empleado del claim para recuperar su departamento
             string jsonEmpleado = claim.Value;
-            Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
-            return await this.repo.GetCompisAsync(empleado.IdDepartamento);
+            //Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
+            Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
+
+            return await this.repo.GetCompisAsync(empleadoDecrypt.IdDepartamento);
         }
     }
 }

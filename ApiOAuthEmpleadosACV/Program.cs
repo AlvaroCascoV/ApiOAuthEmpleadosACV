@@ -8,8 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 //CREAMOS UNA INSTANCIA DE NUESTRO HELPER
 HelperActionOAuthService helper = new HelperActionOAuthService(builder.Configuration);
+HelperCifrado helperCifrado = new HelperCifrado(builder.Configuration);
 //ESTA ISNTANCIA SOLAMENTE DEBEMOS CREARLA UNA VEZ
 builder.Services.AddSingleton<HelperActionOAuthService>(helper);
+builder.Services.AddSingleton<HelperCifrado>(helperCifrado);
 //HABILITAMOS LA SEGURIDAD DENTRO DE PROGRAM
 builder.Services.AddAuthentication(helper.GetAuthenticationSchema())
     .AddJwtBearer(helper.GetJwtBearerOptions());
