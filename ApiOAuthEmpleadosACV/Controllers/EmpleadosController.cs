@@ -56,7 +56,7 @@ namespace ApiOAuthEmpleadosACV.Controllers
 
             return await this.repo.FindEmpleadoAsync(emp.IdEmpleado);
         }
-        [Authorize]
+        [Authorize(Roles = "PRESIDENTE")]
         [HttpGet]
         [Route("[action]")]
         public async Task<ActionResult<List<Empleado>>> Compis()
@@ -74,6 +74,27 @@ namespace ApiOAuthEmpleadosACV.Controllers
             EmpleadoModel emp = this.helperEmpleadoToken.GetEmpleado();
 
             return await this.repo.GetCompisAsync(emp.IdDepartamento);
+        }
+        //para probar peticiones con varios parametros en la url
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<string>>> Oficios()
+        {
+            return await this.repo.GetOficiosAsync();
+        }
+        //?oficio=ANALISTA&oficio=DIRECTOR...
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<List<Empleado>>> EmpleadosOficios([FromQuery] List<string> oficios)
+        {
+            return await this.repo.GetEmpleadosOficiosAsync(oficios);
+        }
+        [HttpPut]
+        [Route("[action]/{incremento}")] //los fromquery no se ponen en la ruta, el resto si
+        public async Task<ActionResult> IncrementarSalarios(int incremento, [FromQuery] List<string> oficios)
+        {
+            await this.repo.IncrementarSalariosAsync(incremento, oficios);
+            return Ok();
         }
     }
 }

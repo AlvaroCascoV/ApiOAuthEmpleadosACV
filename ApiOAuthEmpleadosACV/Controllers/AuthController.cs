@@ -59,9 +59,24 @@ namespace ApiOAuthEmpleadosACV.Controllers
                 string jsonCypher = HelperCifrado.CifrarString(jsonEmpleado);
 
                 //CREAMOS UN ARRAY DE CLAIMS PARA EL TOKEN
+                //AQUI ALMACENAMOS EL ROL DEL USUARIO TAMBIEN
+                //si queremos usar un admin, hay que añadirles los roles
+                //if(empleado.Oficio == "ADMINISTRADOR")
+                //{
+                //    //QUEREMOS QUE PUEDA ENTRAR EN SUS ZONAS
+                //    //Y EN LAS DE TODOS LOS ROLES
+                //    Claim[] informacion = new[]
+                //    {
+                //        new Claim("UserData", jsonCypher),
+                //        new Claim(ClaimTypes.Role, "ADMINISTRADOR"),
+                //        new Claim(ClaimTypes.Role, "PRESIDENTE")
+                //    };
+                //}
+
                 Claim[] informacion = new[]
                 {
-                    new Claim("UserData", jsonCypher)
+                    new Claim("UserData", jsonCypher),
+                    new Claim(ClaimTypes.Role, empleado.Oficio)
                 };
 
                 //EL TOKEN SE GENERA CON UNA CLASE Y DEBEMOS
