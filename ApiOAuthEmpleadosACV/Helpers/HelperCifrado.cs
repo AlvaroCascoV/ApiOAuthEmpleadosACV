@@ -7,61 +7,139 @@ namespace ApiOAuthEmpleadosACV.Helpers
 {
     public class HelperCifrado
     {
-        //tenemos que cifrar los datos del usuario que van en el token con una clave en ida y en vuelta
-        //clave en appsetings
-        private readonly byte[] _key;
-        private readonly byte[] _iv;
+        private static string KeyCifrado;
 
-        public HelperCifrado(IConfiguration config)
+        public static void Initialize(IConfiguration configuration)
         {
-            var key = config["ClavesCrypto:Key"];
-            var iv = config["ClavesCrypto:IV"];
-
-            _key = Encoding.UTF8.GetBytes(key);
-            _iv = Encoding.UTF8.GetBytes(iv);
+            KeyCifrado = configuration.GetValue<string>("ClavesCrypto:Key");
         }
 
-        public string EncryptObject<T>(T objeto)
+        public static string CifrarString(string data)
         {
-            var json = JsonConvert.SerializeObject(objeto);
-            return Encrypt(json);
+            //CONVERTIMOS A BYTES LA KEY
+            byte[] keyData = Encoding.UTF8.GetBytes(KeyCifrado);
+            string res = EncryptString(keyData, data);
+            return res;
         }
 
-        public T DecryptObject<T>(string cipherText)
+        public static string DescifrarString(string data)
         {
-            var json = Decrypt(cipherText);
-            return JsonConvert.DeserializeObject<T>(json);
+            //CONVERTIMOS A BYTES LA KEY
+            byte[] keyData = Encoding.UTF8.GetBytes(KeyCifrado);
+            string res = DecryptString(keyData, data);
+            return res;
         }
 
-        private string Encrypt(string textoPlano)
+        private static string EncryptString(byte[] key, string plainText)
         {
-            using var aes = Aes.Create();
-            aes.Key = _key;
-            aes.IV = _iv;
+            byte[] iv = new byte[16];
+            byte[] array;
 
-            using var encryptor = aes.CreateEncryptor();
-            using var ms = new MemoryStream();
-            using var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
-            using var sw = new StreamWriter(cs);
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = iv;
 
-            sw.Write(textoPlano);
-            sw.Close();
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
-            return Convert.ToBase64String(ms.ToArray());
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        {
+                            streamWriter.Write(plainText);
+                        }
+
+                        array = memoryStream.ToArray();
+                    }
+                }
+            }
+
+            return Convert.ToBase64String(array);
         }
 
-        private string Decrypt(string textoCifrado)
+        private static string DecryptString(byte[] key, string cipherText)
         {
-            using var aes = Aes.Create();
-            aes.Key = _key;
-            aes.IV = _iv;
+            byte[] iv = new byte[16];
+            byte[] buffer = Convert.FromBase64String(cipherText);
 
-            using var decryptor = aes.CreateDecryptor();
-            using var ms = new MemoryStream(Convert.FromBase64String(textoCifrado));
-            using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
-            using var sr = new StreamReader(cs);
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = iv;
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
-            return sr.ReadToEnd();
+                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                        {
+                            return streamReader.ReadToEnd();
+                        }
+                    }
+                }
+            }
         }
+
+
+        //Mi manera--------------------------------------------------------------------------------------
+        ////tenemos que cifrar los datos del usuario que van en el token con una clave en ida y en vuelta
+        ////clave en appsetings
+        //private readonly byte[] _key;
+        //private readonly byte[] _iv;
+
+        //public HelperCifrado(IConfiguration config)
+        //{
+        //    var key = config["ClavesCrypto:Key"];
+        //    var iv = config["ClavesCrypto:IV"];
+
+        //    _key = Encoding.UTF8.GetBytes(key);
+        //    _iv = Encoding.UTF8.GetBytes(iv);
+        //}
+
+        //public string EncryptObject<T>(T objeto)
+        //{
+        //    var json = JsonConvert.SerializeObject(objeto);
+        //    return Encrypt(json);
+        //}
+
+        //public T DecryptObject<T>(string cipherText)
+        //{
+        //    var json = Decrypt(cipherText);
+        //    return JsonConvert.DeserializeObject<T>(json);
+        //}
+
+        //private string Encrypt(string textoPlano)
+        //{
+        //    using var aes = Aes.Create();
+        //    aes.Key = _key;
+        //    aes.IV = _iv;
+
+        //    using var encryptor = aes.CreateEncryptor();
+        //    using var ms = new MemoryStream();
+        //    using var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write);
+        //    using var sw = new StreamWriter(cs);
+
+        //    sw.Write(textoPlano);
+        //    sw.Close();
+
+        //    return Convert.ToBase64String(ms.ToArray());
+        //}
+
+        //private string Decrypt(string textoCifrado)
+        //{
+        //    using var aes = Aes.Create();
+        //    aes.Key = _key;
+        //    aes.IV = _iv;
+
+        //    using var decryptor = aes.CreateDecryptor();
+        //    using var ms = new MemoryStream(Convert.FromBase64String(textoCifrado));
+        //    using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
+        //    using var sr = new StreamReader(cs);
+
+        //    return sr.ReadToEnd();
+        //}
     }
 }

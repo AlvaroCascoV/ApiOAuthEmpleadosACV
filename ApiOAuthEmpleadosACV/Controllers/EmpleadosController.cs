@@ -15,10 +15,12 @@ namespace ApiOAuthEmpleadosACV.Controllers
     {
         private RepositoryHospital repo;
         private HelperCifrado helperCrypt;
-        public EmpleadosController(RepositoryHospital repo, HelperCifrado helperCrypt)
+        private HelperEmpleadoToken helperEmpleadoToken;
+        public EmpleadosController(RepositoryHospital repo, HelperCifrado helperCrypt, HelperEmpleadoToken helperEmpleadoToken)
         {
             this.repo = repo;
             this.helperCrypt = helperCrypt;
+            this.helperEmpleadoToken = helperEmpleadoToken;
         }
         [HttpGet]
         public async Task<ActionResult<List<Empleado>>> GetEmpleadosAsync()
@@ -41,12 +43,18 @@ namespace ApiOAuthEmpleadosACV.Controllers
         public async Task<ActionResult<Empleado>> Perfil()
         {
             Claim claim = HttpContext.User.FindFirst(z => z.Type == "UserData");
-            //desencriptamos el empleado del claim para recuperar su departamento
-            string jsonEmpleado = claim.Value;
-            //Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
-            Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
+            ////desencriptamos el empleado del claim para recuperar su departamento
+            //string jsonEmpleado = claim.Value;
+            ////Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
+            //Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
 
-            return await this.repo.FindEmpleadoAsync(empleadoDecrypt.IdEmpleado);
+            //string jsonEmpleado = claim.Value;
+            //string jsonEmpleadoDecrypt = HelperCifrado.CifrarString(jsonEmpleado);
+            //Empleado empleadoDecrypt = JsonConvert.DeserializeObject<Empleado>(jsonEmpleadoDecrypt);
+
+            EmpleadoModel emp = this.helperEmpleadoToken.GetEmpleado();
+
+            return await this.repo.FindEmpleadoAsync(emp.IdEmpleado);
         }
         [Authorize]
         [HttpGet]
@@ -54,12 +62,18 @@ namespace ApiOAuthEmpleadosACV.Controllers
         public async Task<ActionResult<List<Empleado>>> Compis()
         {
             Claim claim = HttpContext.User.FindFirst(z => z.Type == "UserData");
-            //desencriptamos el empleado del claim para recuperar su departamento
-            string jsonEmpleado = claim.Value;
-            //Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
-            Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
+            ////desencriptamos el empleado del claim para recuperar su departamento
+            //string jsonEmpleado = claim.Value;
+            ////Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonEmpleado);
+            //Empleado empleadoDecrypt = this.helperCrypt.DecryptObject<Empleado>(jsonEmpleado);
 
-            return await this.repo.GetCompisAsync(empleadoDecrypt.IdDepartamento);
+            //string jsonEmpleado = claim.Value;
+            //string jsonEmpleadoDecrypt = HelperCifrado.CifrarString(jsonEmpleado);
+            //Empleado empleadoDecrypt = JsonConvert.DeserializeObject<Empleado>(jsonEmpleadoDecrypt);
+
+            EmpleadoModel emp = this.helperEmpleadoToken.GetEmpleado();
+
+            return await this.repo.GetCompisAsync(emp.IdDepartamento);
         }
     }
 }

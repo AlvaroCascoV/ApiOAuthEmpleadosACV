@@ -43,12 +43,25 @@ namespace ApiOAuthEmpleadosACV.Controllers
                 //añadido posteriormente: añadimos mas info al token
                 //string jsonEmpleado = JsonConvert.SerializeObject(empleado);
                 //encriptamos los datos con nuestro nuevo helper
-                string jsonEncryptEmpleado = this.helperCrypt.EncryptObject(empleado);
+                //string jsonEncryptEmpleado = this.helperCrypt.EncryptObject(empleado);
+
+                //usamos un model intermedio para almacenar solo los datos que queremos en el token
+                //CREAMOS NUESTRO MODELO PARA ALMACENARLO EN EL TOKEN
+                EmpleadoModel modelEmp = new EmpleadoModel 
+                { 
+                    IdEmpleado = empleado.IdEmpleado,
+                    Apellido = empleado.Apellido,
+                    Oficio = empleado.Oficio,
+                    Salario = empleado.Salario,
+                    IdDepartamento = empleado.IdDepartamento
+                };
+                string jsonEmpleado = JsonConvert.SerializeObject(modelEmp);
+                string jsonCypher = HelperCifrado.CifrarString(jsonEmpleado);
 
                 //CREAMOS UN ARRAY DE CLAIMS PARA EL TOKEN
                 Claim[] informacion = new[]
                 {
-                    new Claim("UserData", jsonEncryptEmpleado)
+                    new Claim("UserData", jsonCypher)
                 };
 
                 //EL TOKEN SE GENERA CON UNA CLASE Y DEBEMOS
