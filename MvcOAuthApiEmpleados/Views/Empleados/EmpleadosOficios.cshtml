@@ -1,0 +1,79 @@
+﻿@model List<Empleado>
+
+@{
+    ViewData["Title"] = "EmpleadosOficios";
+}
+
+@{
+    List<string> oficios = ViewData["OFICIOS"] as List<string>;
+}
+
+<h1>EmpleadosOficios</h1>
+
+<form method="post">
+    <label>Seleccione oficio/s</label>
+    <select name="oficio" size="5" multiple class="form-control">
+        @foreach (string ofi in oficios)
+        {
+            <option value="@ofi">@ofi</option>
+        }
+    </select>
+    <label>Incremento salarial:</label>
+    <input type="text" class="form-control" name="incremento"/>
+
+    <button class="btn btn-primary" name="accion" value="get">Buscar Empleados</button>
+    <button class="btn btn-warning" name="accion" value="update">Incrementar</button>
+</form>
+
+@if (Model != null)
+{
+    
+<table class="table table-success">
+    <thead>
+        <tr>
+            <th>
+                IdEmpleado
+            </th>
+            <th>
+                Apellido
+            </th>
+            <th>
+                Oficio
+            </th>
+            <th>
+                Salario
+            </th>
+            <th>
+                IdDepartamento
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.IdEmpleado
+                </td>
+                <td>
+                    @item.Apellido
+                </td>
+                <td>
+                    @item.Oficio
+                </td>
+                <td>
+                    @item.Salario
+                </td>
+                <td>
+                    @item.IdDepartamento
+                </td>
+                <td>
+                    <a asp-controller="Empleados" asp-action="Details" asp-route-idempleado="@item.IdEmpleado" class="btn btn-primary">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+}

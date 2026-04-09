@@ -115,5 +115,47 @@ namespace MvcOAuthApiEmpleados.Services
             List<Empleado> empleados = await this.CallApiAsync<List<Empleado>>(request, token);
             return empleados;
         }
+
+        //TANTO EN INCREMENTAR COMO EN BUSCAR EMPLEADOS POR OFICIO
+        //NECESITAMOS GENERAR EL SIGUIENTE STRING PARA EL REQUEST
+        //oficio=ANALISTA&oficio=VENDEDOR
+        //A PARTIR DE UNA COLECCION
+        private string TransformCollectionToQuery(List<string> collection)
+        {
+            string result = "";
+            foreach(string oficio in collection)
+            {
+                result += "oficios=" + oficio + "&";
+            }
+            result = result.TrimEnd('&');
+            return result;
+        }
+
+        public async Task<List<Empleado>> GetEmpleadosOficiosAsync(List<string> oficios)
+        {
+            string request = "api/empleados/empleadosoficios";
+            string data = this.TransformCollectionToQuery(oficios);
+            List<Empleado> empleados = await this.CallApiAsync<List<Empleado>>(request + "?" + data);
+            return empleados;
+        }
+
+        public async Task UpdateEmpleadosAsync (int incremento, List<string> oficios) 
+        {
+            string request = "api/empleados/incrementarsalarios" + incremento;
+            string data = this.TransformCollectionToQuery(oficios);
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.header);
+                HttpResponseMessage response = await client.PutAsync(request + "?" + data, null);
+            }
+        }
+        public async Task<List<string>> GetOficiosAsync()
+        {
+            string request = "api/empleados/oficios";
+            List<string> oficios = await this.CallApiAsync<List<string>>(request);
+            return oficios;
+        }
     }
 }
