@@ -1,4 +1,6 @@
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Azure;
 using MvcOAuthApiEmpleados.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
+
+builder.Services.AddAzureClients(factory =>
+{
+    factory.AddSecretClient(builder.Configuration.GetSection("KeyVault"));
+});
 
 builder.Services.AddTransient<ServiceEmpleados>();
 builder.Services.AddDistributedMemoryCache();
